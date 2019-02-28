@@ -146,6 +146,21 @@ describe('test/app/extend/context.test.js', () => {
     });
   });
 
+  describe('agent anonymous context can be extended', () => {
+    let app;
+    before(() => {
+      app = utils.app('apps/custom-context-getlogger');
+      return app.ready();
+    });
+    after(() => app.close());
+
+    it('should extend context as app', () => {
+      const ctx = app.agent.createAnonymousContext();
+      const logger = ctx.getLogger('foo');
+      logger.info('hello');
+    });
+  });
+
   describe('properties', () => {
     let app;
     before(() => {
@@ -154,7 +169,7 @@ describe('test/app/extend/context.test.js', () => {
     });
     after(() => app.close());
 
-    describe('ctx.router', () => {
+    describe('ctx.router getter and settter', () => {
       it('should work', () => {
         return app.httpRequest()
           .get('/')

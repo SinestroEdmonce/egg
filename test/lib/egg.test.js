@@ -135,7 +135,7 @@ describe('test/lib/egg.test.js', () => {
 
     it('should read timing data', function* () {
       let json = readJson(path.join(baseDir, `run/agent_timing_${process.pid}.json`));
-      assert(json.length === 32);
+      assert(json.length === 39);
       assert(json[0].name === 'Application Start');
       assert(json[0].pid === process.pid);
 
@@ -377,6 +377,7 @@ describe('test/lib/egg.test.js', () => {
     it('should create anonymous context', async () => {
       let ctx = app.createAnonymousContext();
       assert(ctx);
+      assert(ctx.host === '127.0.0.1');
       ctx = app.agent.createAnonymousContext();
       assert(ctx);
     });
