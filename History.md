@@ -1,5 +1,68 @@
 # History
 
+## 2019-03-25, Version 2.20.2 @whxaxes
+
+### Notable changes
+
+* **fixes**
+  * onClientError remove content-length header
+  
+* **types**
+  * add custom loader typing
+  * import types from egg-core
+
+### Commits
+
+  * [[`f31cd38aa`](http://github.com/eggjs/egg/commit/f31cd38aa1c1cb58f4fb6b08020b0b49a9b5c1a8)] - fix(types): add custom loader typing (#3533) (吖猩 <<whxaxes@qq.com>>)
+  * [[`a73cfd067`](http://github.com/eggjs/egg/commit/a73cfd067b48b2c2301e50d5ab431dfecebddef4)] - fix(types): import types from egg-core (#3545) (吖猩 <<whxaxes@qq.com>>)
+  * [[`04adb930d`](http://github.com/eggjs/egg/commit/04adb930de61f6c3d1b7b9b4e7f49800e3b49602)] - fix: onClientError remove content-length header (#3544) (Yiyu He <<dead_horse@qq.com>>)
+
+## 2019-03-12, Version 2.20.1 @dead-horse
+
+### Notable changes
+
+* **fixes**
+  * empty querystring must be cached
+  * add Singleton class declare typings
+
+### Commits
+
+  * [[`2fc241a86`](http://github.com/eggjs/egg/commit/2fc241a8648d64faab78196ccd0377c781287e5e)] - fix: add Singleton class declare typings (#3522) (mars <<marshalys@gmail.com>>)
+  * [[`981bad58b`](http://github.com/eggjs/egg/commit/981bad58ba6c4644b8bbbd818a43bf0dd62e206f)] - fix: empty querystring must be cached (#3535) (Yiyu He <<dead_horse@qq.com>>)
+
+
+## 2019-03-07, Version 2.20.0 @popomore
+
+### Notable changes
+
+* **features**
+  * support customLoader
+
+* **chore**
+  * fix typo
+  * fix testcase
+
+### Commits
+
+  * [[`4cf06da27`](http://github.com/eggjs/egg/commit/4cf06da272a3f71b864efb6780ddfe2e6c1ad37c)] - feat: support customLoader (#3484) (Haoliang Gao <<sakura9515@gmail.com>>)
+  * [[`2f2bd69bb`](http://github.com/eggjs/egg/commit/2f2bd69bb5a5ef5f9d45514c0640f3849bc64293)] - chore：Fix some typos in Chinese and English (#3514) (Maledong <<maledong_github@outlook.com>>)
+  * [[`65bdd158c`](http://github.com/eggjs/egg/commit/65bdd158caf38abfc945de9aad8367a8567b1a18)] - Fix(cluster-client.test.js)：Rollback to previous (#3507) (Maledong <<maledong_github@outlook.com>>)
+
+## 2019-02-28, Version 2.19.0 @dead-horse
+
+### Notable changes
+
+* **features**
+  * single mode support ignore warning
+
+* **fixes**
+  * fix type defined
+
+### Commits
+
+  * [[`18efac152`](http://github.com/eggjs/egg/commit/18efac152dd5cf789d1e79b1c1fb1fb4ec2013a1)] - feat: single mode support ignore warning (#3501) (Yiyu He <<dead_horse@qq.com>>)
+  * [[`f9eea2a4d`](http://github.com/eggjs/egg/commit/f9eea2a4da805a1b2f0e8883860266d68eb432ff)] - fix(types): getFileStream options types (#3500) (kayikay <<469797590@qq.com>>)
+
 ## 2019-02-26, Version 2.18.0 @dead-horse
 
 ### Notable changes
