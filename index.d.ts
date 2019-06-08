@@ -6,14 +6,14 @@ import { EventEmitter } from 'events'
 import { Readable } from 'stream';
 import { Socket } from 'net';
 import { IncomingMessage, ServerResponse } from 'http';
-import { EggLogger, EggLoggers, LoggerLevel as EggLoggerLevel, EggContextLogger } from 'egg-logger';
-import { HttpClient2, RequestOptions } from 'urllib';
+import { EggLogger, EggLoggers, LoggerLevel as EggLoggerLevel, EggLoggersOptions, EggLoggerOptions, EggContextLogger } from 'egg-logger';
+import { HttpClient, RequestOptions2 as RequestOptions } from 'urllib';
 import {
   EggCoreBase,
   FileLoaderOption,
-  EggLoader as CoreLoader, 
-  EggCoreOptions as CoreOptions, 
-  EggLoaderOptions as CoreLoaderOptions, 
+  EggLoader as CoreLoader,
+  EggCoreOptions as CoreOptions,
+  EggLoaderOptions as CoreLoaderOptions,
   BaseContextClass as CoreBaseContextClass,
 } from 'egg-core';
 import EggCookies = require('egg-cookies');
@@ -37,12 +37,12 @@ declare module 'egg' {
   // Remove specific property from the specific class
   type RemoveSpecProp<T, P> = Pick<T, Exclude<keyof T, P>>;
 
-  interface EggHttpClient extends HttpClient2 {}
+  interface EggHttpClient extends HttpClient<RequestOptions> {}
   interface EggHttpConstructor {
     new (app: Application): EggHttpClient;
   }
 
-  interface EggContextHttpClient extends HttpClient2 {}
+  interface EggContextHttpClient extends HttpClient<RequestOptions> {}
   interface EggContextHttpClientConstructor {
     new (ctx: Context): EggContextHttpClient;
   }
@@ -57,6 +57,32 @@ declare module 'egg' {
      * logger
      */
     protected logger: EggLogger;
+  }
+
+  export class Boot {
+    /**
+     * logger
+     * @member {EggLogger}
+     */
+    protected logger: EggLogger;
+
+    /**
+     * The configuration of application
+     * @member {EggAppConfig}
+     */
+    protected config: EggAppConfig;
+
+    /**
+     * The instance of agent
+     * @member {Agent}
+     */
+    protected agent: Agent;
+
+    /**
+     * The instance of app
+     * @member {Application}
+     */
+    protected app: Application;
   }
 
   export type RequestArrayBody = any[];
@@ -184,6 +210,16 @@ declare module 'egg' {
   type IgnoreItem = string | RegExp | ((ctx: Context) => boolean);
   type IgnoreOrMatch = IgnoreItem | IgnoreItem[];
 
+  /** logger config of egg */
+  export interface EggLoggerConfig extends RemoveSpecProp<EggLoggersOptions, 'type'> {
+    /** custom config of coreLogger */
+    coreLogger?: Partial<EggLoggerOptions>;
+    /** allow debug log at prod, defaults to true */
+    allowDebugAtProd?: boolean;
+    /** disable logger console after app ready. defaults to `false` on local and unittest env, others is `true`. */
+    disableConsoleAfterReady?: boolean;
+  }
+
   /** Custom Loader Configuration */
   export interface CustomLoaderConfig extends RemoveSpecProp<FileLoaderOption, 'inject' | 'target'> {
     /**
@@ -194,6 +230,37 @@ declare module 'egg' {
      * whether need to load files in plugins or framework, default to false
      */
     loadunit?: boolean;
+  }
+
+  export interface HttpClientBaseConfig {
+    /** Whether use http keepalive */
+    keepAlive?: boolean;
+    /** Free socket after keepalive timeout */
+    freeSocketKeepAliveTimeout?: number;
+    /** Free socket after request timeout */
+    freeSocketTimeout?: number;
+    /** Request timeout */
+    timeout?: number;
+    /** Determines how many concurrent sockets the agent can have open per origin */
+    maxSockets?: number;
+    /** The maximum number of sockets that will be left open in the free state */
+    maxFreeSockets?: number;
+  }
+
+  /** HttpClient config */
+  export interface HttpClientConfig extends HttpClientBaseConfig {
+    /** http.Agent */
+    httpAgent?: HttpClientBaseConfig;
+    /** https.Agent */
+    httpsAgent?: HttpClientBaseConfig;
+    /** Default request args for httpclient */
+    request?: RequestOptions;
+    /** Whether enable dns cache */
+    enableDNSCache?: boolean;
+    /** Enable proxy request, default is false. */
+    enableProxy?: boolean;
+    /** proxy agent uri or options, default is null. */
+    proxy?: string | { [key: string]: any };
   }
 
   export interface EggAppConfig {
@@ -255,32 +322,15 @@ declare module 'egg' {
      * @property {Object} coreLogger - custom config of coreLogger
      * @property {Boolean} allowDebugAtProd - allow debug log at prod, defaults to true
      */
-    logger: {
-      dir: string;
-      encoding: string;
-      env: EggEnvType;
-      level: LoggerLevel;
-      consoleLevel: LoggerLevel;
-      disableConsoleAfterReady: boolean;
-      outputJSON: boolean;
-      buffer: boolean;
-      appLogName: string;
-      coreLogName: string;
-      agentLogName: string;
-      errorLogName: string;
-      coreLogger: any;
-      allowDebugAtProd: boolean;
+    logger: EggLoggerConfig;
+
+    /** custom logger of egg */
+    customLogger: {
+      [key: string]: EggLoggerOptions;
     };
 
-    httpclient: {
-      keepAlive: boolean;
-      freeSocketKeepAliveTimeout?: number;
-      freeSocketTimeout: number;
-      timeout: number;
-      maxSockets: number;
-      maxFreeSockets: number;
-      enableDNSCache: boolean;
-    };
+    /** Configuration of httpclient in egg. */
+    httpclient: HttpClientConfig;
 
     development: {
       /**
@@ -636,7 +686,7 @@ declare module 'egg' {
 
     truncated: boolean;
   }
-                   
+
   interface GetFileStreamOptions {
     requireFile?: boolean; // required file submit, default is true
     defCharset?: string;
@@ -664,7 +714,7 @@ declare module 'egg' {
   * special properties (e.g: encrypted). So we must remove this property and
   * create our own with the same name.
   * @see https://github.com/eggjs/egg/pull/2958
-  * 
+  *
   * However, the latest version of Koa has "[key: string]: any" on the
   * context, and there'll be a type error for "keyof koa.Context".
   * So we have to directly inherit from "KoaApplication.BaseContext" and
@@ -993,19 +1043,37 @@ declare module 'egg' {
   }
 
   export interface ClusterOptions {
-    framework?: string; // specify framework that can be absolute path or npm package
-    baseDir?: string; // directory of application, default to `process.cwd()`
-    plugins?: object | null; // customized plugins, for unittest
-    workers?: number; // numbers of app workers, default to `os.cpus().length`
-    port?: number;  // listening port, default to 7001(http) or 8443(https)
-    https?: boolean;  // https or not
-    key?: string; //ssl key
-    cert?: string;  // ssl cert
-    // typescript?: boolean;
+    /** specify framework that can be absolute path or npm package */
+    framework?: string;
+    /** directory of application, default to `process.cwd()` */
+    baseDir?: string;
+    /** customized plugins, for unittest */
+    plugins?: object | null;
+    /** numbers of app workers, default to `os.cpus().length` */
+    workers?: number;
+    /** listening port, default to 7001(http) or 8443(https) */
+    port?: number;
+    /** https or not */
+    https?: boolean;
+    /** ssl key */
+    key?: string;
+    /** ssl cert */
+    cert?: string;
     [prop: string]: any;
   }
 
   export function startCluster(options: ClusterOptions, callback: (...args: any[]) => any): void;
+
+  export interface StartOptions{
+    /** specify framework that can be absolute path or npm package */
+    framework?: string;
+    /** directory of application, default to `process.cwd()` */
+    baseDir?: string; 
+    /** ignore single process mode warning */
+    ignoreWarning? :boolean 
+  }
+
+  export function start(options?:StartOptions):Promise<Application>
 
   /**
    * Powerful Partial, Support adding ? modifier to a mapped property in deep level

@@ -9,6 +9,7 @@ import {
   EggAppConfig,
   PowerPartial,
   Singleton,
+  start,
 } from 'egg';
 
 // base context class
@@ -61,6 +62,26 @@ agent.httpclient.request('http://127.0.0.1', { method: 'GET' }).catch(() => {});
 agent.logger.info(agent.Service);
 agent.logger.info(agent.Controller);
 
+// single process mode
+start({ baseDir: __dirname,ignoreWarning: true}).then(app=>{
+  const port= 1002;
+  app.logger.info('123');
+  app.on('egg-ready', () => {});
+  app.emit('egg-ready');
+  app.getLogger('test').info('123');
+  app.inspect();
+  app.listen(port);
+  app.logger.info(app.locals.test);
+  const ctxHttpClient = new app.ContextHttpClient({} as Context);
+  ctxHttpClient.request('http://127.0.0.1', { method: 'GET' });
+  const appHttpClient = new app.HttpClient(app);
+  appHttpClient.request('http://127.0.0.1', { method: 'GET' });
+  app.httpclient.request('http://127.0.0.1', { method: 'GET' }).catch(() => {});
+  app.logger.info(app.Service);
+  app.logger.info(app.Controller);
+  app.controller.test().then(() => {});
+});
+
 // controller
 class MyController extends Controller {
   async test() {
@@ -98,6 +119,55 @@ config.customLoader = {
     inject: 'app',
   }
 }
+const httpclientOption = {
+  keepAlive: true,
+  freeSocketKeepAliveTimeout: 10 * 60 * 1000,
+  freeSocketTimeout: 10 * 60 * 1000,
+  timeout: 60 * 1000,
+  maxSockets: 20,
+  maxFreeSockets: 100,
+};
+config.httpclient = {
+  ...httpclientOption,
+  httpAgent: httpclientOption,
+  httpsAgent: httpclientOption,
+  enableProxy: true,
+  request: {
+    method: 'GET',
+  },
+  proxy: 'http://127.0.0.1:8888'
+}
+config.httpclient = httpclientOption;
+config.logger = {
+  dir: 'logs',
+  encoding: 'utf8',
+  env: 'prod',
+  level: 'INFO',
+  consoleLevel: 'INFO',
+  disableConsoleAfterReady: true,
+  outputJSON: false,
+  buffer: true,
+  appLogName: `app-web.log`,
+  coreLogName: 'egg-web.log',
+  agentLogName: 'egg-agent.log',
+  errorLogName: 'common-error.log',
+  allowDebugAtProd: false,
+  coreLogger: {},
+};
+config.customLogger = {
+  myLogger: {
+    file: './test.log',
+    jsonFile: './test.json',
+    formatter: (meta: any) => (meta.date + ' ' + meta.level + ' ' + meta.pid + ' ' + meta.message),
+    contextFormatter: meta => JSON.stringify(meta),
+    buffer: true,
+    eol: '\r\n',
+  },
+
+  otherLogger: {
+    file: './other.log',
+  }
+}
 
 // partial config
 const config2 = {} as PowerPartial<EggAppConfig>;
@@ -114,6 +184,16 @@ config2.customLoader = {
 }
 config2.security = {
   csrf: false,
+}
+config2.logger = {
+  dir: 'logs',
+  encoding: 'utf8',
+  env: 'prod',
+  level: 'INFO',
+  coreLogger: {
+    file: './test.log',
+    level: 'ALL',
+  }
 }
 
 // singleton
