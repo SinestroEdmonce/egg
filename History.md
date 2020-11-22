@@ -1,15 +1,94 @@
 # History
 
+## 2020-10-19, Version 2.29.1 @atian25
+
+### Notable Changes
+
+* **fixes**
+  * revert clear timing after ready, only disable
+  * won't set keep-alive header at Node.js ^12.19.0 || >=14.8.0
+
+### Commits
+
+  * [[`9f653afe7`](http://github.com/eggjs/egg/commit/9f653afe790e0ead44109c68dfffb8353fdca56c)] - fix: remove clear timing && skip keep-alive after 12.19.0 (#4497) (TZ | 天猪 <<atian25@qq.com>>)
+
+
+## 2020-09-23, Version 2.29.0 @atian25
+
+### Notable Changes
+
+* **features**
+  * dumpconfig also dump disabled plugin
+
+* **docs**
+  * csrf double cookie defense should enabled on all method
+  * test case for env.EGG_APP_CONFIG
+  * optimize multiple env configuration description
+
+### Commits
+
+  * [[`cc80c6ab8`](http://github.com/eggjs/egg/commit/cc80c6ab86c71b1c9ea244065d4766297bfb6c17)] - feat: dumpconfig also dump disabled plugin (#4480) (TZ | 天猪 <<atian25@qq.com>>)
+  * [[`1d32771e5`](http://github.com/eggjs/egg/commit/1d32771e5aeb8fa8546ad8bfacf2f438973afae0)] - doc: csrf double cookie defense should enabled on all method (#3881) (Hongcai Deng <<admin@dhchouse.com>>)
+  * [[`504e4bebc`](http://github.com/eggjs/egg/commit/504e4bebcef03830be7c7432210b5b6b1de9d06b)] - test: for env.EGG_APP_CONFIG (#4468) (TZ | 天猪 <<atian25@qq.com>>)
+  * [[`ff4dfaa09`](http://github.com/eggjs/egg/commit/ff4dfaa098ad40ab7a0773c44d409829fcbb0e41)] - docs(config): optimize multiple env configuration description (#4406) (Andy <<xiaoxiaocoder@126.com>>)
+  * [[`b283791da`](http://github.com/eggjs/egg/commit/b283791dab3c86beb14506668e2aa3ef21cb78e6)] - docs: update badge to github action (#4463) (TZ | 天猪 <<atian25@qq.com>>)
+
+
+## 2020-09-08, Version 2.28.0 @atian25
+
+### Notable Changes
+
+* **features**
+  * clear & disable timing after ready
+
+* **fixes**
+  * only set keep-alive header before Node.js 14.8.0
+
+* **typings**
+  * Added missing types in HttpClientConfig
+  * export EggLogger/EggHttpClient/EggContextHttpClient
+
+* **docs**
+  * fixed grammatical and spelling errors
+  * update compress url
+
+### Commits
+
+  * [[`b31b47df1`](http://github.com/eggjs/egg/commit/b31b47df10722bfac7ac13771db534f0200fc6ce)] - feat: clear & disable timing after ready (#4421) (TZ | 天猪 <<atian25@qq.com>>)
+  * [[`d25d32e58`](http://github.com/eggjs/egg/commit/d25d32e584b0bfd80f21cc522b91ac465f2852ac)] - fix: only set keep-alive header before Node.js 14.8.0 (#4457) (TZ | 天猪 <<atian25@qq.com>>)
+  * [[`a7ae46c84`](http://github.com/eggjs/egg/commit/a7ae46c847db07c0c4af1a85173bc4009d1219d9)] - type: Added missing types in HttpClientConfig (#4388) (Gcaufy <<gcaufy@gmail.com>>)
+  * [[`064cc7a91`](http://github.com/eggjs/egg/commit/064cc7a91a2be89e39d72a833a1cb35cdcd8f201)] - docs: fixed grammatical and spelling errors (#4424) (Hridayesh Sharma <<dev.hridayesh@gmail.com>>)
+  * [[`95776d646`](http://github.com/eggjs/egg/commit/95776d6462080448e946c049f9ad4da4e9fc065e)] - docs: fix spelling mistakes and grammatical errors (#4423) (Hridayesh Sharma <<vyasriday7@gmail.com>>)
+  * [[`50976280f`](http://github.com/eggjs/egg/commit/50976280fcb19ce556ddc46f76da1f5fab46fa4a)] - docs: update compress url  (#4415) (忽如寄 <<594613537@qq.com>>)
+
+## 2020-06-29, Version 2.27.0 @killa
+
+### Notable Changes
+
+* **typings**
+  * fix curl type
+  * export EggLogger/EggHttpClient/EggContextHttpClient
+
+* **docs**
+  * update docs about how to extends ctx.helper
+
+### Commits
+
+  * [[`b5cc8b6e3`](http://github.com/eggjs/egg/commit/b5cc8b6e361b1ac2e7b4eb509f1e6486fe1dab13)] - fix(dts): fix curl type (#4312) (胡宇航 <<591765099@qq.com>>)
+  * [[`432128a80`](http://github.com/eggjs/egg/commit/432128a80aefdc8d11a6571da1ff35550e85fd66)] - type: export EggLogger/EggHttpClient/EggContextHttpClient (#4280) (killa <<killa123@126.com>>)
+  * [[`eca6b04c1`](http://github.com/eggjs/egg/commit/eca6b04c1c50bc69c53f9910cc35bb7441c7cb02)] - docs:update docs about how to extends ctx.helper (#4362) (EasonQwQ <<750225883@qq.com>>)
+
+
 ## 2020-05-13, Version 2.26.1 @dead-horse
 
 ### Notable Changes
 
 * **fixes**
- * runInBackground always run after setImmediate
+  * runInBackground always run after setImmediate
 
 * **docs**
- * imporve docs
- * imporve typings
+  * imporve docs
+  * imporve typings
 
 ### Commits
 

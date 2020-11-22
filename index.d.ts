@@ -6,7 +6,7 @@ import { EventEmitter } from 'events'
 import { Readable } from 'stream';
 import { Socket } from 'net';
 import { IncomingMessage, ServerResponse } from 'http';
-import { EggLogger, EggLoggers, LoggerLevel as EggLoggerLevel, EggLoggersOptions, EggLoggerOptions, EggContextLogger } from 'egg-logger';
+import { EggLogger as Logger, EggLoggers, LoggerLevel as EggLoggerLevel, EggLoggersOptions, EggLoggerOptions, EggContextLogger } from 'egg-logger';
 import { HttpClient, RequestOptions2 as RequestOptions } from 'urllib';
 import {
   EggCoreBase,
@@ -31,20 +31,21 @@ import 'egg-jsonp';
 import 'egg-view';
 
 declare module 'egg' {
+  export type EggLogger = Logger;
   // plain object
   type PlainObject<T = any> = { [key: string]: T };
 
   // Remove specific property from the specific class
   type RemoveSpecProp<T, P> = Pick<T, Exclude<keyof T, P>>;
 
-  interface EggHttpClient extends HttpClient<RequestOptions> {}
+  export interface EggHttpClient extends HttpClient<RequestOptions> { }
   interface EggHttpConstructor {
-    new (app: Application): EggHttpClient;
+    new(app: Application): EggHttpClient;
   }
 
-  interface EggContextHttpClient extends HttpClient<RequestOptions> {}
+  export interface EggContextHttpClient extends HttpClient<RequestOptions> { }
   interface EggContextHttpClientConstructor {
-    new (ctx: Context): EggContextHttpClient;
+    new(ctx: Context): EggContextHttpClient;
   }
 
   /**
@@ -184,6 +185,7 @@ declare module 'egg' {
 
   export type LoggerLevel = EggLoggerLevel;
 
+
   /**
    * egg app info
    * @example
@@ -261,6 +263,10 @@ declare module 'egg' {
     enableProxy?: boolean;
     /** proxy agent uri or options, default is null. */
     proxy?: string | { [key: string]: any };
+    /** DNS cache lookup interval */
+    dnsCacheLookupInterval?: number;
+    /** DNS cache max age */
+    dnsCacheMaxLength?: number;
   }
 
   export interface EggAppConfig {
@@ -355,6 +361,10 @@ declare module 'egg' {
        * whether override default watchDirs, default is false.
        */
       overrideDefault: boolean;
+      /**
+       * whether override default ignoreDirs, default is false.
+       */
+      overrideIgnore: boolean;
       /**
        * whether to reload, use https://github.com/sindresorhus/multimatch
        */
@@ -563,7 +573,7 @@ declare module 'egg' {
      * Keep the same api with httpclient.request(url, args).
      * See https://github.com/node-modules/urllib#api-doc for more details.
      */
-    curl<T = any>(url: string, opt?: RequestOptions): Promise<T>;
+    curl: EggHttpClient['request'];
 
     /**
      * Get logger by name, it's equal to app.loggers['name'], but you can extend it with your own logical
@@ -908,7 +918,7 @@ declare module 'egg' {
      * Keep the same api with httpclient.request(url, args).
      * See https://github.com/node-modules/urllib#api-doc for more details.
      */
-    curl<T = any>(url: string, opt?: RequestOptions): Promise<T>;
+    curl: EggHttpClient['request'];
 
     __(key: string, ...values: string[]): string;
     gettext(key: string, ...values: string[]): string;
@@ -932,6 +942,8 @@ declare module 'egg' {
      * @see Responce.redirect
      */
     redirect(url: string, alt?: string): void;
+
+    httpclient: EggContextHttpClient;
   }
 
   export interface IContextLocals extends PlainObject { }
@@ -1062,16 +1074,16 @@ declare module 'egg' {
 
   export function startCluster(options: ClusterOptions, callback: (...args: any[]) => any): void;
 
-  export interface StartOptions{
+  export interface StartOptions {
     /** specify framework that can be absolute path or npm package */
     framework?: string;
     /** directory of application, default to `process.cwd()` */
-    baseDir?: string; 
+    baseDir?: string;
     /** ignore single process mode warning */
-    ignoreWarning? :boolean 
+    ignoreWarning?: boolean;
   }
 
-  export function start(options?:StartOptions):Promise<Application>
+  export function start(options?: StartOptions): Promise<Application>
 
   /**
    * Powerful Partial, Support adding ? modifier to a mapped property in deep level
@@ -1083,8 +1095,8 @@ declare module 'egg' {
    */
   export type PowerPartial<T> = {
     [U in keyof T]?: T[U] extends object
-      ? PowerPartial<T[U]>
-      : T[U]
+    ? PowerPartial<T[U]>
+    : T[U]
   };
 
   // send data can be number|string|boolean|object but not Set|Map
@@ -1119,8 +1131,8 @@ declare module 'egg' {
   }
 
   // compatible
-  export interface EggLoaderOptions extends CoreLoaderOptions {}
-  export interface EggLoader extends CoreLoader {}
+  export interface EggLoaderOptions extends CoreLoaderOptions { }
+  export interface EggLoader extends CoreLoader { }
 
   /**
    * App worker process Loader, will load plugins
